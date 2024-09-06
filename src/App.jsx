@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import Ul from "./assets/Ul";
 import "./App.css";
-import { Spin, Alert } from "antd";
+import { Spin, Alert, message } from "antd";
 import "antd/dist/reset.css"; // Для Ant Design v5
+import { Offline, Online } from "react-detect-offline";
+import NewTaskForm from "./assets/NewTaskForm";
 
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
 
@@ -10,16 +12,23 @@ function App() {
   const [showAlert, setShowAlert] = useState(false);
   const [film, setfilm] = useState([]);
   const [loading, setLoading] = useState(true);
-  const fetchFilms = async () => {
+  const [query, setQuery] = useState("");
+
+  const fetchFilms = async (searchQuery) => {
     try {
+      setLoading(true);
+
       const response = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${moviedbKey}&query=return&include_adult=false&language=en-US&page=1`
+        `https://api.themoviedb.org/3/search/movie?api_key=${moviedbKey}&query=${query}&include_adult=false&language=en-US&page=1`
       );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       let data = await response.json();
+
       data = data.results.slice(0, 6);
+      if (data.length === 0) message.error("НЕКОРЕТКТНОЕ НАЗВАНИЕ ФИЛЬМА");
       setfilm(data);
       setLoading((privValue) => !privValue);
     } catch (error) {
@@ -28,14 +37,22 @@ function App() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    fetchFilms();
-  }, []);
+    if (query.trim().length > 0) {
+      fetchFilms();
+    }
+  }, [query]);
+
+  const requestSearch = (value) => {
+    setQuery(value);
+  };
 
   return (
     <>
-      <Spin spinning={loading}>
+      <Online>
         <div className="background">
+          <NewTaskForm requestSearch={requestSearch} />
           {showAlert && (
             <Alert
               className="alert-container"
@@ -46,9 +63,20 @@ function App() {
               onClose={() => setShowAlert(false)} // Закрытие алерта
             />
           )}
-          <Ul film={film} />
+          <Spin className="spin" spinning={loading}>
+            <Ul film={film} />
+          </Spin>
         </div>
-      </Spin>
+      </Online>
+      <Offline>
+        <div className="offline">
+          <Alert
+            type="error"
+            message={`Можно было бы навести суету,
+но у тебя нет инета :(`}
+          />
+        </div>
+      </Offline>
     </>
   );
 }
