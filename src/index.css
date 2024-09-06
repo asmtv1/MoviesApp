@@ -78,3 +78,9 @@ li {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.alert-container {
+  position: fixed;
+  top: 20%;
+  left: 40%;
+  z-index: 100;
+}

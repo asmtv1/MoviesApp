@@ -1,9 +1,16 @@
 import { parseISO, format } from "date-fns";
 import { ru } from "date-fns/locale";
+
 export default function Li({ film }) {
-  const parsedDate = format(parseISO(film.release_date), "LLLL d, yyyy", {
-    locale: ru,
-  });
+  let parsedDate;
+
+  try {
+    parsedDate = format(parseISO(film.release_date), "LLLL d, yyyy", {
+      locale: ru,
+    });
+  } catch (error) {
+    parsedDate = "Дата неизвестна";
+  }
 
   return (
     <li>
