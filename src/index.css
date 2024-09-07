@@ -102,3 +102,16 @@ li {
 .spin {
   margin-top: 100px;
 }
+.field__lable {
+  position: absolute;
+  top: 6.1em;
+  left: 40px;
+  transition-duration: 0.25s;
+  color: #827e7e;
+}
+.field__input:not(:placeholder-shown) + .field__lable {
+  translate: -0.5em -2.25em;
+}
+.field {
+  position: relative;
+}

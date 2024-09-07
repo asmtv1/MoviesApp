@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { message } from "antd";
 import PropTypes from "prop-types";
 import debounce from "lodash/debounce";
 export default function NewTaskForm({ requestSearch }) {
   const [value, setValue] = useState("");
-  const [query, setQuery] = useState("");
 
-  const debouncedSearch = debounce((searchValue) => {
-    requestSearch(searchValue);
-    console.log("Отправка запроса на сервер с запросом:", searchValue);
-  }, 500);
+  const handleSearch = useCallback(
+    debounce((value) => {
+      requestSearch(value);
+    }, 1000), // Задержка в 500 мс
+    []
+  );
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -17,25 +18,28 @@ export default function NewTaskForm({ requestSearch }) {
       message.warning("Поле не может быть пустым");
       return;
     }
-    setQuery(value);
     setValue("");
   };
 
   useEffect(() => {
-    if (query.trim()) {
-      debouncedSearch(query);
-    }
+    handleSearch(value);
   }, [value]);
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        className="input"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder="Type to search..."
-      />
+      <div className="field">
+        <input
+          type="text"
+          className="input field__input"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder=" "
+          id="login"
+        />
+        <label className="field__lable" htmlFor="login">
+          Введите название фильма
+        </label>
+      </div>
     </form>
   );
 }
