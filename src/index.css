@@ -3,13 +3,14 @@
   height: 1147px;
   background: #ffffff;
 }
-li {
+.list {
   width: 451px;
   height: 279px;
   display: flex;
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
   color: #ffffff;
   gap: 20px;
+  position: sticky;
 }
 .listFilms {
   margin-top: 0;
@@ -77,6 +78,7 @@ li {
   -webkit-line-clamp: 7;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin-bottom: 1px;
 }
 .alert-container {
   position: fixed;
@@ -114,4 +116,26 @@ li {
 }
 .field {
   position: relative;
+}
+.rating {
+  padding-top: 4px;
+  font-size: 14px;
+  color: #000;
+  text-align: center;
+  position: absolute;
+  margin-left: 210px;
+  margin-top: 10px;
+  display: block;
+  border: 2px solid;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  background-color: #ffffff;
+}
+.rate {
+  display: block;
+  margin-top: auto;
+  padding-bottom: 10px;
 }
