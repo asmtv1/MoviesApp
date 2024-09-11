@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createContext, useContext } from "react";
 import Ul from "./assets/Ul";
 import "./App.css";
 import { Spin, Alert, message } from "antd";
@@ -8,6 +9,9 @@ import NewTaskForm from "./assets/NewTaskForm";
 import PaginatedComponent from "./assets/PaginatedComponent";
 
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
+
+export const MyContext = createContext([]);
+let genre = [];
 
 const saveGuestSessionToLocalStorage = (guestSession) => {
   const sessionValue = guestSession.guest_session_id;
@@ -44,6 +48,23 @@ function App() {
   const [showPaginatedComponent, setPaginatedComponent] = useState(false);
 
   const fetchFilms = async (searchQuery) => {
+    if (genre.length === 0) {
+      try {
+        const response = await fetch(
+          `
+    https://api.themoviedb.org/3/genre/movie/list?api_key=${moviedbKey}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        genre = await response.json();
+        genre = genre.genres;
+      } catch (error) {
+        console.error("Error fetching guest session:", error);
+        setShowAlert(true); // Окно с траблом
+      }
+    }
+
     if (!localStorage.getItem("guestSession")) {
       try {
         const response = await fetch(
@@ -117,10 +138,14 @@ function App() {
             />
           )}
           <Spin className="spin" spinning={loading}>
-            <Ul
-              film={film}
-              getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
-            />
+            <MyContext.Provider value={genre}>
+              <Ul
+                film={film}
+                getGuestSessionFromLocalStorage={
+                  getGuestSessionFromLocalStorage
+                }
+              />
+            </MyContext.Provider>
             {showPaginatedComponent && (
               <PaginatedComponent
                 totalPages={totalPages}

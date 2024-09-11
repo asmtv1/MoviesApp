@@ -55,8 +55,7 @@
   box-sizing: border-box;
   margin: 0;
   margin-right: 8px;
-  width: 46px;
-  height: 20px;
+  padding: 2px 5px;
   border: 1px solid #d9d9d9;
   border-radius: 2px;
   background: #fafafa;

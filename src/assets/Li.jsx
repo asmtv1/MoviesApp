@@ -1,14 +1,18 @@
 import { parseISO, format } from "date-fns";
 import { useState, useEffect } from "react";
+import { createContext, useContext } from "react";
+import { MyContext } from "../App";
 import { ru } from "date-fns/locale";
 import { Rate } from "antd";
 import { message } from "antd";
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
 export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
+  const genresFromContext = useContext(MyContext);
+
   const ratingNumber = Number(Rating);
   const [rating, setRating] = useState(ratingNumber);
   let parsedDate;
-  console.log(film);
+
   try {
     parsedDate = format(parseISO(film.release_date), "LLLL d, yyyy", {
       locale: ru,
@@ -82,9 +86,18 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
         </div>
         <p className="release">{parsedDate} </p>
         <div>
-          <p className="genre">Action</p>
-          <p className="genre">Drama</p>
+          {film.genre_ids.map((item) => {
+            const matchingGenre = genresFromContext.find(
+              (genresItem) => genresItem.id === item
+            );
+            return matchingGenre ? (
+              <p key={matchingGenre.id} className="genre">
+                {matchingGenre.name}
+              </p> 
+            ) : null; 
+          })}
         </div>
+
         <p className="description">{film.overview}</p>
 
         <Rate

@@ -1,6 +1,7 @@
 import Li from "./Li";
 import { useState, useEffect } from "react";
 import { message } from "antd";
+
 export default function Ul({ film, getGuestSessionFromLocalStorage }) {
   const [updatedFilm, setUpdatedFilm] = useState([]);
   const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
@@ -17,6 +18,10 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
       );
 
       if (!response.ok) {
+        if (response.status === 404) {
+          setUpdatedFilm(film);
+          throw new Error("404");
+        }
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
@@ -34,7 +39,12 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
 
       setUpdatedFilm(mergedFilms); // Обновляем состояние
     } catch (error) {
-      message.error("Не удалось получить ваши оценки");
+      if (error.message === "404") {
+        //message.warning("Вы ещё ничего не оценили"); не уверен, что это нужно
+      } else {
+        console.log(error);
+        message.error("Не удалось получить ваши оценки");
+      }
     }
   };
 
