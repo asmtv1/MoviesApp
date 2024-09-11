@@ -1,8 +1,11 @@
 import { Pagination } from "antd";
 import "./pagination.css";
-import { useState, useEffect } from "react";
 
-const PaginatedComponent = ({ totalPages, changePage, currentPage }) => {
+export default function PaginatedComponent({
+  totalPages,
+  changePage,
+  currentPage,
+}) {
   return (
     <div className="custom-pagination">
       <Pagination
@@ -15,6 +18,4 @@ const PaginatedComponent = ({ totalPages, changePage, currentPage }) => {
       />
     </div>
   );
-};
-
-export default PaginatedComponent;
+}

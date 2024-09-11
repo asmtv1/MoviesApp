@@ -2,9 +2,11 @@ import { parseISO, format } from "date-fns";
 import { useState, useEffect } from "react";
 import { ru } from "date-fns/locale";
 import { Rate } from "antd";
-
-export default function Li({ film }) {
-  const [rating, setRating] = useState(0);
+import { message } from "antd";
+const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
+export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
+  const ratingNumber = Number(Rating);
+  const [rating, setRating] = useState(ratingNumber);
   let parsedDate;
   console.log(film);
   try {
@@ -15,7 +17,7 @@ export default function Li({ film }) {
     parsedDate = "Дата неизвестна";
   }
 
-  const style = {
+  const ratingStyle = {
     borderColor:
       film.vote_average <= 3
         ? "#E90000"
@@ -25,37 +27,37 @@ export default function Li({ film }) {
         ? "#F4F400"
         : "#66E900",
   };
+  const guestSession = getGuestSessionFromLocalStorage(); // Id гостевой сессии
 
-  const handleChange = (value) => {
-    setRating(value); // Обновляем состояние с новым значением рейтинга
-    console.log("Selected Rating:", value, film.id); // Выводим значение в консоль
-    /*const addRating = async (movieId: film.id, rating: value, sessionId: string) => {
-    try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/movie/${movieId}/rating`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionId}`, // Пример использования токена
-          },
-          body: JSON.stringify({
-            value: `${rating}`,
-          }),
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+  const handleChange = (guestSessionId, movieId, rating) => {
+    console.log(guestSession);
+    setRating(rating); // Обновляем рейтинг
+
+    fetch(
+      `https://api.themoviedb.org/3/movie/${movieId}/rating?api_key=${moviedbKey}&guest_session_id=${guestSessionId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify({
+          value: rating,
+        }),
       }
-  
-      const data = await response.json();
-      return data; // Возвращаем данные ответа
-    } catch (error) {
-      console.error('Error adding rating:', error); // Обработка ошибок
-      throw error; // Пробрасываем ошибку дальше
-    }
-  };
-  */
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Ошибка при отправке рейтинга");
+        }
+      })
+      .then(() => {
+        message.info("Рейтинг успешно добавлен");
+      })
+      .catch((error) => {
+        message.error("Ошибка при отправке рейтинга");
+      });
   };
 
   return (
@@ -75,7 +77,7 @@ export default function Li({ film }) {
 
       <div className="info">
         <h1 className="title">{film.original_title}</h1>
-        <div className="rating" style={style}>
+        <div className="rating" style={ratingStyle}>
           {film.vote_average.toFixed(1)}
         </div>
         <p className="release">{parsedDate} </p>
@@ -85,7 +87,13 @@ export default function Li({ film }) {
         </div>
         <p className="description">{film.overview}</p>
 
-        <Rate className="rate" value={rating} onChange={handleChange} />
+        <Rate
+          className="rate"
+          allowHalf
+          count={10}
+          value={rating}
+          onChange={(value) => handleChange(guestSession, film.id, value)}
+        />
       </div>
     </li>
   );

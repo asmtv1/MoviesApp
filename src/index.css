@@ -135,7 +135,9 @@
   background-color: #ffffff;
 }
 .rate {
-  display: block;
   margin-top: auto;
   padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
 }

@@ -8,19 +8,29 @@ import NewTaskForm from "./assets/NewTaskForm";
 import PaginatedComponent from "./assets/PaginatedComponent";
 
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
-const saveGuestSessionToCookies = (guestSession) => {
-  const sessionValue = guestSession.guest_session_id; // Извлекаем guest_session_id
-  const expires = new Date();
-  expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // Установим срок действия на 24 часа
-  document.cookie = `guestSession=${sessionValue}; expires=${expires.toUTCString()}; path=/;`;
-};
 
-const getGuestSessionFromCookies = () => {
-  const match = document.cookie.match(new RegExp("(^| )guestSession=([^;]+)"));
-  if (match) {
-    return match[2]; // Возвращаем значение guestSession
+const saveGuestSessionToLocalStorage = (guestSession) => {
+  const sessionValue = guestSession.guest_session_id;
+  const expires = new Date();
+  expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // 24 часа
+  const sessionData = {
+    sessionValue,
+    expires: expires.getTime(), // Сохраняем срок действия в миллисекундах
+  };
+  localStorage.setItem("guestSession", JSON.stringify(sessionData));
+};
+const getGuestSessionFromLocalStorage = () => {
+  const sessionData = localStorage.getItem("guestSession");
+  if (sessionData) {
+    const { sessionValue, expires } = JSON.parse(sessionData);
+    // Проверяем, не истек ли срок действия
+    if (new Date().getTime() > expires) {
+      localStorage.removeItem("guestSession"); // Удаляем устаревшую сессию
+      return null;
+    }
+    return sessionValue;
   } else {
-    return null; // Если guestSession нет в cookies
+    return null;
   }
 };
 
@@ -34,22 +44,23 @@ function App() {
   const [showPaginatedComponent, setPaginatedComponent] = useState(false);
 
   const fetchFilms = async (searchQuery) => {
-    try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${moviedbKey}`
-      );
+    if (!localStorage.getItem("guestSession")) {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${moviedbKey}`
+        );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const guestSession = await response.json();
+        saveGuestSessionToLocalStorage(guestSession);
+        console.log(guestSession);
+      } catch (error) {
+        console.error("Error fetching guest session:", error);
+        setShowAlert(true); // Окно с траблом
       }
-      const guestSession = await response.json();
-      saveGuestSessionToCookies(guestSession);
-      console.log(guestSession);
-    } catch (error) {
-      console.error("Error fetching guest session:", error); // Логирование ошибки
-      setShowAlert(true); // Уведомление пользователя о проблеме
     }
-
     try {
       setLoading(true);
 
@@ -68,11 +79,10 @@ function App() {
       setfilm(data);
       setPaginatedComponent(true);
       console.log(totalPages);
-      setLoading((privValue) => !privValue);
     } catch (error) {
-      setShowAlert(true);
+      setShowAlert(true); // Окно с траблом
     } finally {
-      setLoading(false);
+      setLoading(false); //убираем крутилку
     }
   };
 
@@ -107,7 +117,10 @@ function App() {
             />
           )}
           <Spin className="spin" spinning={loading}>
-            <Ul film={film} />
+            <Ul
+              film={film}
+              getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
+            />
             {showPaginatedComponent && (
               <PaginatedComponent
                 totalPages={totalPages}
