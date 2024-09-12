@@ -53,11 +53,11 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
         setShowAlert(true); // если нет оценок, показать в Rated алёрт
       }
 
-      if (error.message === "404") {
+      if (error.message === "404" || "401") {
         //message.warning("Вы ещё ничего не оценили"); не уверен, что это нужно
       } else {
         console.log(error);
-        message.error("Не удалось получить ваши оценки");
+        message.error("Интернет сломался :(");
       }
     }
   };

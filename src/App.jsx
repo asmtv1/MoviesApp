@@ -126,58 +126,58 @@ function App() {
 
   return (
     <>
-      <Online>
-        <div className="background">
-          <TabsSection onChange={(curent) => setTab(curent)} />
-          {tab === "Search" && (
-            <>
-              <NewTaskForm requestSearch={requestSearch} />
-              {showAlert && (
-                <Alert
-                  className="alert-container"
-                  type="error"
-                  message="Ошибка!"
-                  description="Ошибка получения данных с сервера"
-                  closable
-                  onClose={() => setShowAlert(false)} // Закрытие алерта
+      {/*   <Online>*/}
+      <div className="background">
+        <TabsSection onChange={(curent) => setTab(curent)} />
+        {tab === "Search" && (
+          <>
+            <NewTaskForm requestSearch={requestSearch} />
+            {showAlert && (
+              <Alert
+                className="alert-container"
+                type="error"
+                message="Ошибка!"
+                description="Ошибка получения данных с сервера"
+                closable
+                onClose={() => setShowAlert(false)} // Закрытие алерта
+              />
+            )}
+            <Spin className="spin" spinning={loading}>
+              <MyContext.Provider value={genre}>
+                <Ul
+                  film={film}
+                  getGuestSessionFromLocalStorage={
+                    getGuestSessionFromLocalStorage
+                  }
+                />
+              </MyContext.Provider>
+              {showPaginatedComponent && (
+                <PaginatedComponent
+                  totalPages={totalPages}
+                  changePage={changePage}
+                  currentPage={currentPage}
                 />
               )}
-              <Spin className="spin" spinning={loading}>
-                <MyContext.Provider value={genre}>
-                  <Ul
-                    film={film}
-                    getGuestSessionFromLocalStorage={
-                      getGuestSessionFromLocalStorage
-                    }
-                  />
-                </MyContext.Provider>
-                {showPaginatedComponent && (
-                  <PaginatedComponent
-                    totalPages={totalPages}
-                    changePage={changePage}
-                    currentPage={currentPage}
-                  />
-                )}
-              </Spin>
-            </>
-          )}
+            </Spin>
+          </>
+        )}
 
-          {tab === "Rated" && (
-            <Rated
-              getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
-            />
-          )}
-        </div>
-      </Online>
-      <Offline>
-        <div className="offline">
-          <Alert
-            type="error"
-            message={`Можно было бы навести суету,
-но у тебя нет инета :(`}
+        {tab === "Rated" && (
+          <Rated
+            getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
           />
-        </div>
-      </Offline>
+        )}
+      </div>
+      {/*    </Online>*/}
+      {/*  <Offline>*/}
+      <div className="offline">
+        <Alert
+          type="error"
+          message={`Можно было бы навести суету,
+но у тебя нет инета :(`}
+        />
+      </div>
+      {/*  </Offline>*/}
     </>
   );
 }

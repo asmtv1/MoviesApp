@@ -8,6 +8,7 @@ export default function TabsSection({ onChange }) {
         name="radio-group"
         className="custom-radio-button"
         onClick={() => onChange("Search")}
+        defaultChecked
       />
       <label htmlFor="Search" className="togle_label_button">
         Search

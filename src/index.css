@@ -5,6 +5,7 @@
   min-height: 100vh;
   background: #ffffff;
 }
+
 .list {
   width: 451px;
   height: 279px;
@@ -68,15 +69,22 @@
   text-align: center;
   box-sizing: border-box;
 }
+.genre_wraper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 250px;
+  gap: 8px;
+}
 
 .description {
+  padding-right: 20px;
   font-family: var(--font-family);
   font-weight: 400;
   font-size: 12px;
   line-height: 183%;
   color: rgba(0, 0, 0, 0.8);
   display: -webkit-box;
-  -webkit-line-clamp: 7;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 1px;

@@ -11,6 +11,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
 
   const ratingNumber = Number(Rating);
   const [rating, setRating] = useState(ratingNumber);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   let parsedDate;
 
   try {
@@ -63,7 +64,67 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
         message.error("Ошибка при отправке рейтинга");
       });
   };
+  //для мобилки другой флекс буду рисовать
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
 
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  if (isMobile) {
+    return (
+      <li className="list">
+        <div className="cover">
+          <img
+            src={
+              film.poster_path
+                ? `https://image.tmdb.org/t/p/w500/${film.poster_path}`
+                : "/Rectangle.jpg"
+            }
+            width="60px"
+            height="100%"
+            alt={`${film.original_title} Film "Logo"`}
+          />
+          <div className="info">
+            <h1 className="title">{film.original_title}</h1>
+            <div className="rating" style={ratingStyle}>
+              {film.vote_average.toFixed(1)}
+            </div>
+            <p className="release">{parsedDate} </p>
+            <div className="genre_wraper">
+              {film.genre_ids.map((item) => {
+                const matchingGenre = genresFromContext.find(
+                  (genresItem) => genresItem.id === item
+                );
+                return matchingGenre ? (
+                  <p key={matchingGenre.id} className="genre">
+                    {matchingGenre.name}
+                  </p>
+                ) : null;
+              })}
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="description">{film.overview}</p>
+        </div>
+        <Rate
+          className="rate"
+          allowHalf
+          count={10}
+          value={rating}
+          onChange={(value) => handleChange(guestSession, film.id, value)}
+        />
+      </li>
+    );
+  }
+  // для компа другой флекс
   return (
     <li className="list">
       <div className="cover">
@@ -85,7 +146,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
           {film.vote_average.toFixed(1)}
         </div>
         <p className="release">{parsedDate} </p>
-        <div>
+        <div className="genre_wraper">
           {film.genre_ids.map((item) => {
             const matchingGenre = genresFromContext.find(
               (genresItem) => genresItem.id === item
@@ -93,8 +154,8 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
             return matchingGenre ? (
               <p key={matchingGenre.id} className="genre">
                 {matchingGenre.name}
-              </p> 
-            ) : null; 
+              </p>
+            ) : null;
           })}
         </div>
 
