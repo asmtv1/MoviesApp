@@ -1,14 +1,14 @@
 #root {
-  position: relative;
+  position: absolute;
   width: 100vw;
   height: 100vh;
-  padding-inline: 215px;
   background: #f7f7f7;
-  box-sizing: border-box;
-  position: absolute;
-
+  overflow: auto;
   --font-family: "Inter UI", sans-serif;
   --second-family: "Inter", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 body {
   right: 0;

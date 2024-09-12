@@ -1,9 +1,10 @@
 import Li from "./Li";
 import { useState, useEffect } from "react";
-import { message } from "antd";
+import { message, Alert } from "antd";
 
 export default function Ul({ film, getGuestSessionFromLocalStorage }) {
   const [updatedFilm, setUpdatedFilm] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
   const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
   const guestSession = getGuestSessionFromLocalStorage(); // Id гостевой сессии
 
@@ -26,8 +27,14 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
       }
 
       const Rate = await response.json();
+
       if (!Array.isArray(film)) {
-        setUpdatedFilm(Rate.results);
+        //Это только для Rated.
+        if (!Rate || !Array.isArray(Rate.results)) {
+          return;
+        } else {
+          setUpdatedFilm(Rate.results); //Чтоб вывести в Rated только оцененные
+        }
       } else {
         const mergedFilms = film.map((filmItem) => {
           const matchingRate = Rate.results.find(
@@ -42,6 +49,10 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
         setUpdatedFilm(mergedFilms);
       }
     } catch (error) {
+      if (error.message === "404" && !Array.isArray(film)) {
+        setShowAlert(true); // если нет оценок, показать в Rated алёрт
+      }
+
       if (error.message === "404") {
         //message.warning("Вы ещё ничего не оценили"); не уверен, что это нужно
       } else {
@@ -53,14 +64,25 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
 
   return (
     <ul className="listFilms">
-      {updatedFilm.map((item) => (
-        <Li
-          key={item.id}
-          film={item}
-          getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
-          Rating={String(item.rating)}
-        />
-      ))}
+      {!Array.isArray(updatedFilm) || updatedFilm.length === 0
+        ? showAlert && (
+            <Alert
+              className="alert-container"
+              type="error"
+              message="Какая жолость, что"
+              description="Вы ещё ничего не оценили"
+              closable
+              onClose={() => setShowAlert(false)} // Закрытие алерта
+            />
+          )
+        : updatedFilm.map((item) => (
+            <Li
+              key={item.id}
+              film={item}
+              getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
+              Rating={String(item.rating)}
+            />
+          ))}
     </ul>
   );
 }
