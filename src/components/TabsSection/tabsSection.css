@@ -27,12 +27,12 @@
   -webkit-appearance: none; /* для WebKit-браузеров */
 }
 
-input[type="radio"]:checked + label {
+input[type='radio']:checked + label {
   border-bottom: 2px solid rgba(24, 144, 255, 1);
   color: rgba(24, 144, 255, 1);
 }
 
-input[type="radio"] + label {
+input[type='radio'] + label {
   box-shadow: 0px -1px 0px 0px rgba(0, 0, 0, 0.09) inset;
   color: rgba(0, 0, 0, 0.65);
 }

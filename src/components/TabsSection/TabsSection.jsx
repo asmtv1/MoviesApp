@@ -1,4 +1,5 @@
-import "./tabsSection.css";
+import './tabsSection.css';
+import PropTypes from 'prop-types';
 export default function TabsSection({ onChange }) {
   return (
     <section className="button_section">
@@ -7,7 +8,7 @@ export default function TabsSection({ onChange }) {
         id="Search"
         name="radio-group"
         className="custom-radio-button"
-        onClick={() => onChange("Search")}
+        onClick={() => onChange('Search')}
         defaultChecked
       />
       <label htmlFor="Search" className="togle_label_button">
@@ -19,7 +20,7 @@ export default function TabsSection({ onChange }) {
         id="Rated"
         name="radio-group"
         className="custom-radio-button"
-        onClick={() => onChange("Rated")}
+        onClick={() => onChange('Rated')}
       />
       <label htmlFor="Rated" className="togle_label_button">
         Rated
@@ -27,3 +28,6 @@ export default function TabsSection({ onChange }) {
     </section>
   );
 }
+TabsSection.propTypes = {
+  onChange: PropTypes.func.isRequired,
+};
