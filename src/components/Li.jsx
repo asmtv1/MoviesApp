@@ -1,10 +1,11 @@
-import { parseISO, format } from "date-fns";
-import { useState, useEffect } from "react";
-import { createContext, useContext } from "react";
-import { MyContext } from "../App";
-import { ru } from "date-fns/locale";
-import { Rate } from "antd";
-import { message } from "antd";
+import { parseISO, format } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import { MyContext } from '../App';
+import { ru } from 'date-fns/locale';
+import { Rate } from 'antd';
+import { message } from 'antd';
+import PropTypes from 'prop-types';
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
 export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
   const genresFromContext = useContext(MyContext);
@@ -15,35 +16,34 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
   let parsedDate;
 
   try {
-    parsedDate = format(parseISO(film.release_date), "LLLL d, yyyy", {
+    parsedDate = format(parseISO(film.release_date), 'LLLL d, yyyy', {
       locale: ru,
     });
   } catch (error) {
-    parsedDate = "Дата неизвестна";
+    parsedDate = 'Дата неизвестна';
   }
 
   const ratingStyle = {
     borderColor:
       film.vote_average <= 3
-        ? "#E90000"
+        ? '#E90000'
         : film.vote_average <= 5
-        ? "#E97E00"
-        : film.vote_average <= 7
-        ? "#F4F400"
-        : "#66E900",
+          ? '#E97E00'
+          : film.vote_average <= 7
+            ? '#F4F400'
+            : '#66E900',
   };
   const guestSession = getGuestSessionFromLocalStorage(); // Id гостевой сессии
 
   const handleChange = (guestSessionId, movieId, rating) => {
-    console.log(guestSession);
     setRating(rating); // Обновляем рейтинг
 
     fetch(
       `https://api.themoviedb.org/3/movie/${movieId}/rating?api_key=${moviedbKey}&guest_session_id=${guestSessionId}`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json;charset=utf-8",
+          'Content-Type': 'application/json;charset=utf-8',
         },
         body: JSON.stringify({
           value: rating,
@@ -54,14 +54,14 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error("Ошибка при отправке рейтинга");
+          throw new Error('Ошибка при отправке рейтинга');
         }
       })
       .then(() => {
-        message.info("Рейтинг успешно добавлен");
+        message.info('Рейтинг успешно добавлен');
       })
       .catch((error) => {
-        message.error("Ошибка при отправке рейтинга");
+        message.error('Ошибка при отправке рейтинга');
       });
   };
   //для мобилки другой флекс буду рисовать
@@ -70,10 +70,10 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
       setIsMobile(window.innerWidth <= 768);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -82,11 +82,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
       <li className="list">
         <div className="cover">
           <img
-            src={
-              film.poster_path
-                ? `https://image.tmdb.org/t/p/w500/${film.poster_path}`
-                : "/Rectangle.jpg"
-            }
+            src={film.poster_path ? `https://image.tmdb.org/t/p/w500/${film.poster_path}` : '/Rectangle.jpg'}
             width="60px"
             height="100%"
             alt={`${film.original_title} Film "Logo"`}
@@ -99,9 +95,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
             <p className="release">{parsedDate} </p>
             <div className="genre_wraper">
               {film.genre_ids.map((item) => {
-                const matchingGenre = genresFromContext.find(
-                  (genresItem) => genresItem.id === item
-                );
+                const matchingGenre = genresFromContext.find((genresItem) => genresItem.id === item);
                 return matchingGenre ? (
                   <p key={matchingGenre.id} className="genre">
                     {matchingGenre.name}
@@ -129,11 +123,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
     <li className="list">
       <div className="cover">
         <img
-          src={
-            film.poster_path
-              ? `https://image.tmdb.org/t/p/w500/${film.poster_path}`
-              : "/Rectangle.jpg"
-          }
+          src={film.poster_path ? `https://image.tmdb.org/t/p/w500/${film.poster_path}` : '/Rectangle.jpg'}
           height="100%"
           width="183"
           alt={`${film.original_title} Film "Logo"`}
@@ -148,9 +138,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
         <p className="release">{parsedDate} </p>
         <div className="genre_wraper">
           {film.genre_ids.map((item) => {
-            const matchingGenre = genresFromContext.find(
-              (genresItem) => genresItem.id === item
-            );
+            const matchingGenre = genresFromContext.find((genresItem) => genresItem.id === item);
             return matchingGenre ? (
               <p key={matchingGenre.id} className="genre">
                 {matchingGenre.name}
@@ -172,3 +160,16 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
     </li>
   );
 }
+Li.propTypes = {
+  film: PropTypes.shape({
+    release_date: PropTypes.string,
+    poster_path: PropTypes.string,
+    original_title: PropTypes.string,
+    vote_average: PropTypes.number,
+    genre_ids: PropTypes.arrayOf(PropTypes.number),
+    overview: PropTypes.string,
+    id: PropTypes.number,
+  }).isRequired,
+  getGuestSessionFromLocalStorage: PropTypes.func.isRequired,
+  Rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};

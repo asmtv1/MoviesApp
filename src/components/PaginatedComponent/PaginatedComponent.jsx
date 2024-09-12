@@ -1,11 +1,8 @@
-import { Pagination } from "antd";
-import "./pagination.css";
+import { Pagination } from 'antd';
+import './pagination.css';
+import PropTypes from 'prop-types';
 
-export default function PaginatedComponent({
-  totalPages,
-  changePage,
-  currentPage,
-}) {
+export default function PaginatedComponent({ totalPages, changePage, currentPage }) {
   return (
     <div className="custom-pagination">
       <Pagination
@@ -21,10 +18,10 @@ export default function PaginatedComponent({
           if (page === totalPages) {
             return null; // Не отображать последнюю страницу
           }
-          if (type === "jump-prev") {
+          if (type === 'jump-prev') {
             return null; // Скрываем кнопку jump-prev
           }
-          if (type === "jump-next") {
+          if (type === 'jump-next') {
             return null; // Скрываем кнопку jump-prev
           }
 
@@ -34,3 +31,9 @@ export default function PaginatedComponent({
     </div>
   );
 }
+
+PaginatedComponent.propTypes = {
+  totalPages: PropTypes.number.isRequired,
+  changePage: PropTypes.func.isRequired,
+  currentPage: PropTypes.number.isRequired,
+};
