@@ -1,0 +1,30 @@
+.button_section {
+    position: relative;
+    left: 45%;
+    width: 146px;
+    height: 54px;
+    top: 13px;
+    gap: 0px;
+    border: none;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .togle_label_button {
+    box-sizing: border-box;
+    width: 64.64px;
+    height: 53.77px;
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 157%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .custom-radio-button {
+    appearance: none;
+    -webkit-appearance: none; /* для WebKit-браузеров */
+  }
+  

@@ -1,12 +1,8 @@
 .custom-pagination .ant-pagination-item {
   width: 22px;
   border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 12px;
   border: none;
-  box-shadow: none;
 }
 
 .custom-pagination .ant-pagination-item-active {
@@ -15,17 +11,11 @@
   color: rgba(255, 255, 255, 1);
 }
 
-.custom-pagination .ant-pagination-prev,
-.custom-pagination .ant-pagination-next {
-  box-shadow: none;
-  border: none;
-  width: 20px;
-}
 .custom-pagination .ant-pagination-item-active a {
   color: rgb(255, 255, 255); /* Цвет текста выбранной цифры */
 }
 :where(.css-dev-only-do-not-override-14i19y2).ant-pagination {
-  justify-content: center;
+  align-items: baseline; /* выравнивание ковычек по номерам элементов */
 }
 .custom-pagination .ant-pagination-item-active:hover a {
   color: white; /* Цвет текста активной кнопки при наведении */
@@ -36,9 +26,4 @@
 }
 .custom-pagination {
   margin-top: 37px;
-}
-
-.ant-pagination-jump-prev,
-.ant-pagination-jump-next {
-  display: none !important;
 }

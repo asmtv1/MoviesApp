@@ -7,6 +7,8 @@ import "antd/dist/reset.css"; // Для Ant Design v5
 import { Offline, Online } from "react-detect-offline";
 import NewTaskForm from "./assets/NewTaskForm";
 import PaginatedComponent from "./assets/PaginatedComponent";
+import TabsSection from "./assets/TabsSection";
+import Rated from "./assets/Rated";
 
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
 
@@ -46,7 +48,7 @@ function App() {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [showPaginatedComponent, setPaginatedComponent] = useState(false);
-
+  const [tab, setTab] = useState("Rated");
   const fetchFilms = async (searchQuery) => {
     if (genre.length === 0) {
       try {
@@ -126,34 +128,41 @@ function App() {
     <>
       <Online>
         <div className="background">
-          <NewTaskForm requestSearch={requestSearch} />
-          {showAlert && (
-            <Alert
-              className="alert-container"
-              type="error"
-              message="Ошибка!"
-              description="Ошибка получения данных с сервера"
-              closable
-              onClose={() => setShowAlert(false)} // Закрытие алерта
-            />
+          <TabsSection active={tab} onChange={setTab} />
+          {tab === "Search" && (
+            <>
+              <NewTaskForm requestSearch={requestSearch} />
+              {showAlert && (
+                <Alert
+                  className="alert-container"
+                  type="error"
+                  message="Ошибка!"
+                  description="Ошибка получения данных с сервера"
+                  closable
+                  onClose={() => setShowAlert(false)} // Закрытие алерта
+                />
+              )}
+              <Spin className="spin" spinning={loading}>
+                <MyContext.Provider value={genre}>
+                  <Ul
+                    film={film}
+                    getGuestSessionFromLocalStorage={
+                      getGuestSessionFromLocalStorage
+                    }
+                  />
+                </MyContext.Provider>
+                {showPaginatedComponent && (
+                  <PaginatedComponent
+                    totalPages={totalPages}
+                    changePage={changePage}
+                    currentPage={currentPage}
+                  />
+                )}
+              </Spin>
+            </>
           )}
-          <Spin className="spin" spinning={loading}>
-            <MyContext.Provider value={genre}>
-              <Ul
-                film={film}
-                getGuestSessionFromLocalStorage={
-                  getGuestSessionFromLocalStorage
-                }
-              />
-            </MyContext.Provider>
-            {showPaginatedComponent && (
-              <PaginatedComponent
-                totalPages={totalPages}
-                changePage={changePage}
-                currentPage={currentPage}
-              />
-            )}
-          </Spin>
+
+          {tab === "Rated" && <Rated />}
         </div>
       </Online>
       <Offline>

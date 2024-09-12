@@ -10,11 +10,26 @@ export default function PaginatedComponent({
     <div className="custom-pagination">
       <Pagination
         current={currentPage}
-        defaultCurrent={1}
         total={totalPages}
         pageSize={1}
         showSizeChanger={false}
+        align="center"
+        hideOnSinglePage={true}
         onChange={(page) => changePage(page)}
+        itemRender={(page, type, originalElement) => {
+          // Скрываем последнюю страницу
+          if (page === totalPages) {
+            return null; // Не отображать последнюю страницу
+          }
+          if (type === "jump-prev") {
+            return null; // Скрываем кнопку jump-prev
+          }
+          if (type === "jump-next") {
+            return null; // Скрываем кнопку jump-prev
+          }
+
+          return originalElement;
+        }}
       />
     </div>
   );
