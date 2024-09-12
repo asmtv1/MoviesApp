@@ -1,5 +1,5 @@
 import "./tabsSection.css";
-export default function TabsSection({ active, onChange }) {
+export default function TabsSection({ onChange }) {
   return (
     <section className="button_section">
       <label className="togle_label_button">
@@ -8,7 +8,7 @@ export default function TabsSection({ active, onChange }) {
           type="radio"
           className="custom-radio-button"
           onClick={() => onChange("Search")}
-          isActive={active === "Search"}
+          
         />
       </label>
       <label className="togle_label_button">
@@ -17,7 +17,7 @@ export default function TabsSection({ active, onChange }) {
           type="radio"
           className="custom-radio-button"
           onClick={() => onChange("Rated")}
-          isActive={active === "Rated"}
+   
         />
       </label>
     </section>

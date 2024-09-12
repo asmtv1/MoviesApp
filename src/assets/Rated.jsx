@@ -1,7 +1,10 @@
-export default function Rated() {
+import Ul from "./Ul";
+export default function Rated({ getGuestSessionFromLocalStorage }) {
+  const filmRate = undefined;
   return (
-    <section className="button_section">
-      <h1>Хуй</h1>
-    </section>
+    <Ul
+      film={filmRate}
+      getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
+    />
   );
 }

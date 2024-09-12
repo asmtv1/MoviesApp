@@ -26,18 +26,21 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
       }
 
       const Rate = await response.json();
+      if (!Array.isArray(film)) {
+        setUpdatedFilm(Rate.results);
+      } else {
+        const mergedFilms = film.map((filmItem) => {
+          const matchingRate = Rate.results.find(
+            (rateItem) => rateItem.id === filmItem.id
+          );
+          return {
+            ...filmItem,
+            rating: matchingRate ? matchingRate.rating : 0,
+          };
+        });
 
-      const mergedFilms = film.map((filmItem) => {
-        const matchingRate = Rate.results.find(
-          (rateItem) => rateItem.id === filmItem.id
-        );
-        return {
-          ...filmItem,
-          rating: matchingRate ? matchingRate.rating : 0,
-        };
-      });
-
-      setUpdatedFilm(mergedFilms); // Обновляем состояние
+        setUpdatedFilm(mergedFilms);
+      }
     } catch (error) {
       if (error.message === "404") {
         //message.warning("Вы ещё ничего не оценили"); не уверен, что это нужно

@@ -48,7 +48,7 @@ function App() {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [showPaginatedComponent, setPaginatedComponent] = useState(false);
-  const [tab, setTab] = useState("Rated");
+  const [tab, setTab] = useState("Search");
   const fetchFilms = async (searchQuery) => {
     if (genre.length === 0) {
       try {
@@ -128,7 +128,7 @@ function App() {
     <>
       <Online>
         <div className="background">
-          <TabsSection active={tab} onChange={setTab} />
+          <TabsSection onChange={(curent) => setTab(curent)} />
           {tab === "Search" && (
             <>
               <NewTaskForm requestSearch={requestSearch} />
@@ -162,7 +162,11 @@ function App() {
             </>
           )}
 
-          {tab === "Rated" && <Rated />}
+          {tab === "Rated" && (
+            <Rated
+              getGuestSessionFromLocalStorage={getGuestSessionFromLocalStorage}
+            />
+          )}
         </div>
       </Online>
       <Offline>
