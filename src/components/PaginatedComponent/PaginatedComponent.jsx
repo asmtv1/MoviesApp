@@ -24,7 +24,6 @@ export default function PaginatedComponent({ totalPages, changePage, currentPage
           if (type === 'jump-next') {
             return null; // Скрываем кнопку jump-prev
           }
-
           return originalElement;
         }}
       />

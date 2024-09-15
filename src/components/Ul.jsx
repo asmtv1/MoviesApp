@@ -1,7 +1,9 @@
+import { mergeFilmsWithRatings, handleError } from '../utils';
+import { fetchFilmsRare } from '../api';
 import PropTypes from 'prop-types';
-import Li from './Li';
 import { useState, useEffect } from 'react';
-import { message, Alert } from 'antd';
+import { Alert } from 'antd';
+import Li from './Li';
 
 export default function Ul({ film, getGuestSessionFromLocalStorage }) {
   const [updatedFilm, setUpdatedFilm] = useState([]);
@@ -12,48 +14,21 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
   useEffect(() => {
     const fetchRate = async () => {
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/guest_session/${guestSession}/rated/movies?api_key=${moviedbKey}`
-        );
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            setUpdatedFilm(film);
-            throw new Error('404');
-          }
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const Rate = await response.json();
+        const Rate = await fetchFilmsRare(guestSession, setUpdatedFilm, film);
 
         if (!Array.isArray(film)) {
-          // Это только для Rated.
+          //Только для Rated
           if (!Rate || !Array.isArray(Rate.results)) {
             return;
           } else {
             setUpdatedFilm(Rate.results); // Чтобы вывести в Rated только оцененные
           }
         } else {
-          const mergedFilms = film.map((filmItem) => {
-            const matchingRate = Rate.results.find((rateItem) => rateItem.id === filmItem.id);
-            return {
-              ...filmItem,
-              rating: matchingRate ? matchingRate.rating : 0,
-            };
-          });
-
+          const mergedFilms = mergeFilmsWithRatings(film, Rate.results);
           setUpdatedFilm(mergedFilms);
         }
       } catch (error) {
-        if (error.message === '404' || ('401' && !Array.isArray(film))) {
-          setShowAlert(true); // если нет оценок, показать в Rated алёрт
-        }
-
-        if (error.message === '404' || '401') {
-          //message.warning("Вы ещё ничего не оценили"); не уверен, что это нужно
-        } else {
-          message.error('Интернет сломался :(');
-        }
+        handleError(error, setShowAlert, !Array.isArray(film));
       }
     };
 
@@ -70,7 +45,7 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
               message="Какая жалость, что"
               description="Вы ещё ничего не оценили"
               closable
-              onClose={() => setShowAlert(false)} // Закрытие алерта
+              onClose={() => setShowAlert(false)}
             />
           )
         : updatedFilm.map((item) => (
@@ -84,6 +59,7 @@ export default function Ul({ film, getGuestSessionFromLocalStorage }) {
     </ul>
   );
 }
+
 Ul.propTypes = {
   film: PropTypes.undefined,
   film: PropTypes.oneOfType([

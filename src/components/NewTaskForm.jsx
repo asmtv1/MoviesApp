@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { message } from 'antd';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
+import { createDebouncedFunction, isValueEmpty } from '../utils';
 
 export default function NewTaskForm({ requestSearch }) {
   const [value, setValue] = useState('');
-
-  // Создаем debounce функцию
-  const debouncedRequestSearch = debounce((value) => {
+  const debouncedRequestSearch = createDebouncedFunction((value) => {
     requestSearch(value);
-  }, 1000); // Задержка в 1000 мс
+  }, 1000);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (value.trim().length === 0) {
+    if (isValueEmpty(value)) {
       message.warning('Поле не может быть пустым');
       return;
     }
@@ -21,14 +19,11 @@ export default function NewTaskForm({ requestSearch }) {
   };
 
   useEffect(() => {
-    // Вызываем дебаунс функцию при изменении value
     debouncedRequestSearch(value);
-
-    // Очистка debounce при размонтировании
     return () => {
       debouncedRequestSearch.cancel();
     };
-  }, [value, debouncedRequestSearch]);
+  }, [value]);
 
   return (
     <form onSubmit={handleSubmit}>

@@ -1,80 +1,36 @@
-import { parseISO, format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { useContext } from 'react';
 import { MyContext } from '../App';
-import { ru } from 'date-fns/locale';
 import { Rate } from 'antd';
 import { message } from 'antd';
 import PropTypes from 'prop-types';
+import { submitRating } from '../api';
+import { getParsedDate, getRatingStyle, isMobileDevice } from '../utils';
 const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
 export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
   const genresFromContext = useContext(MyContext);
-
   const ratingNumber = Number(Rating);
   const [rating, setRating] = useState(ratingNumber);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  let parsedDate;
-
-  try {
-    parsedDate = format(parseISO(film.release_date), 'LLLL d, yyyy', {
-      locale: ru,
-    });
-  } catch (error) {
-    parsedDate = 'Дата неизвестна';
-  }
-
-  const ratingStyle = {
-    borderColor:
-      film.vote_average <= 3
-        ? '#E90000'
-        : film.vote_average <= 5
-          ? '#E97E00'
-          : film.vote_average <= 7
-            ? '#F4F400'
-            : '#66E900',
-  };
+  const parsedDate = getParsedDate(film.release_date);
   const guestSession = getGuestSessionFromLocalStorage(); // Id гостевой сессии
 
   const handleChange = (guestSessionId, movieId, rating) => {
     setRating(rating); // Обновляем рейтинг
 
-    fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}/rating?api_key=${moviedbKey}&guest_session_id=${guestSessionId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        body: JSON.stringify({
-          value: rating,
-        }),
-      }
-    )
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Ошибка при отправке рейтинга');
-        }
-      })
+    submitRating(movieId, rating, guestSessionId, moviedbKey)
       .then(() => {
         message.info('Рейтинг успешно добавлен');
       })
-      .catch((error) => {
+      .catch(() => {
         message.error('Ошибка при отправке рейтинга');
       });
   };
   //для мобилки другой флекс буду рисовать
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
+    const handleResize = () => setIsMobile(isMobileDevice());
     window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (isMobile) {
@@ -89,7 +45,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
           />
           <div className="info">
             <h1 className="title">{film.original_title}</h1>
-            <div className="rating" style={ratingStyle}>
+            <div className="rating" style={getRatingStyle(film.vote_average)}>
               {film.vote_average.toFixed(1)}
             </div>
             <p className="release">{parsedDate} </p>
@@ -132,7 +88,7 @@ export default function Li({ film, getGuestSessionFromLocalStorage, Rating }) {
 
       <div className="info">
         <h1 className="title">{film.original_title}</h1>
-        <div className="rating" style={ratingStyle}>
+        <div className="rating" style={getRatingStyle(film.vote_average)}>
           {film.vote_average.toFixed(1)}
         </div>
         <p className="release">{parsedDate} </p>

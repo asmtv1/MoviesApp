@@ -8,37 +8,11 @@ import NewTaskForm from './components/NewTaskForm';
 import PaginatedComponent from './components/PaginatedComponent/PaginatedComponent';
 import TabsSection from './components/TabsSection/TabsSection';
 import Rated from './components/Rated';
-
-const moviedbKey = import.meta.env.VITE_THEMOVIEDB_KEY;
+import { fetchGenres, searchFilms } from './api';
+import { getGuestSessionFromLocalStorage, getGuestSession } from './utils';
 
 export const MyContext = createContext([]);
 let genre = [];
-
-const saveGuestSessionToLocalStorage = (guestSession) => {
-  const sessionValue = guestSession.guest_session_id;
-  const expires = new Date();
-  expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // 24 часа
-  const sessionData = {
-    sessionValue,
-    expires: expires.getTime(), // Сохраняем срок действия в миллисекундах
-  };
-  localStorage.setItem('guestSession', JSON.stringify(sessionData));
-};
-
-const getGuestSessionFromLocalStorage = () => {
-  const sessionData = localStorage.getItem('guestSession');
-  if (sessionData) {
-    const { sessionValue, expires } = JSON.parse(sessionData);
-    // Проверяем, не истек ли срок действия
-    if (new Date().getTime() > expires) {
-      localStorage.removeItem('guestSession'); // Удаляем устаревшую сессию
-      return null;
-    }
-    return sessionValue;
-  } else {
-    return null;
-  }
-};
 
 function App() {
   const [showAlert, setShowAlert] = useState(false);
@@ -50,50 +24,23 @@ function App() {
   const [showPaginatedComponent, setPaginatedComponent] = useState(false);
   const [tab, setTab] = useState('Search');
 
-  const fetchFilms = useCallback(async () => {
+  getGuestSession();
+
+  const fetchFilms = async () => {
     if (genre.length === 0) {
       try {
-        const response = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${moviedbKey}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        genre = await response.json();
-        genre = genre.genres;
+        genre = await fetchGenres();
       } catch (error) {
         setShowAlert(true); // Окно с траблом
       }
     }
 
-    if (!localStorage.getItem('guestSession')) {
-      try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${moviedbKey}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const guestSession = await response.json();
-        saveGuestSessionToLocalStorage(guestSession);
-      } catch (error) {
-        setShowAlert(true); // Окно с траблом
-      }
-    }
     try {
       setLoading(true);
-
-      const response = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${moviedbKey}&query=${query}&include_adult=false&language=en-US&page=${currentPage}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      let data = await response.json();
+      let data = await searchFilms(query, currentPage);
       setTotalPages(data.total_pages);
       data = data.results.slice(0, 6);
-      if (data.length === 0) message.error('НЕКОРЕТКТНОЕ НАЗВАНИЕ ФИЛЬМА');
+      if (data.length === 0 && query !== '') message.error('НЕКОРЕКТНОЕ НАЗВАНИЕ ФИЛЬМА');
       setfilm(data);
       setPaginatedComponent(true);
     } catch (error) {
@@ -101,13 +48,12 @@ function App() {
     } finally {
       setLoading(false); //убираем крутилку
     }
-  }, [query, currentPage]);
-
+  };
   useEffect(() => {
     if (query.trim().length > 0) {
       fetchFilms();
     }
-  }, [query, currentPage, fetchFilms]);
+  }, [query, currentPage]);
 
   const requestSearch = (value) => {
     setQuery(value);
@@ -122,7 +68,13 @@ function App() {
     <>
       <Online>
         <div className="background">
-          <TabsSection onChange={(current) => setTab(current)} />
+          <TabsSection
+            onChange={(current) => {
+              setTab(current);
+              setQuery('');
+              fetchFilms();
+            }}
+          />
           {tab === 'Search' && (
             <>
               <NewTaskForm requestSearch={requestSearch} />
